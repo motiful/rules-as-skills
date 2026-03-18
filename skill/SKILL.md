@@ -1,13 +1,6 @@
 ---
 name: rules-as-skills
-description: >-
-  Methodology for encoding hard constraints (Rules) as dynamically-loaded Skills.
-  Solves: rules always-loaded wasting context, rules not portable across platforms,
-  constraints not publishable or shareable.
-  Use when creating constraint-type skills, encoding MUST/NEVER boundaries for AI agents,
-  or adapting rules across platforms (Claude Code, OpenClaw, Codex, Cursor).
-  Core pattern: MUST/NEVER summary in skill description (always visible) + detailed rules
-  in body (loaded on demand) + optional platform-native rule file as hard fallback.
+description: 'Methodology for encoding hard constraints (Rules) as dynamically-loaded Skills. Solves: rules always-loaded wasting context, rules not portable across platforms, constraints not publishable or shareable. Use when creating constraint-type skills, encoding MUST/NEVER boundaries for AI agents, or adapting rules across platforms (Claude Code, Codex, Cursor, Windsurf). Core pattern: MUST/NEVER summary in skill description (always visible) + detailed rules in body (loaded on demand) + optional platform-native rule file as hard fallback.'
 license: MIT
 metadata:
   author: motiful
@@ -104,6 +97,44 @@ These patterns emerged from 6 rule-skills running in production (OpenClaw/Clawfa
 6. **Immutability Marking** — Rule-skills are not modifiable by the agent. The body header states this explicitly, preventing self-modification loops.
 
 See `references/anatomy.md` for structural details of each pattern.
+
+## In-Repo Rule-Skills
+
+Not all rule-skills are published as standalone repos. Some ship with the project repo itself.
+
+**What they are**: Rule-skills that live in `.claude/skills/` within a project repository. They are version-controlled and distributed with the repo (clone/fork gets them), but are not independently installable via `npx skills add`.
+
+**When to use**: Constraints that only apply to THIS repo's context — maintenance procedures, project-specific coding standards, deployment checklists, security rules.
+
+**Directory setup**:
+```
+project-repo/
+├── SKILL.md                              ← main skill (published)
+├── .claude/skills/<name>-rules/
+│   └── SKILL.md                          ← in-repo rule-skill (source of truth)
+├── .agents/skills/<name>-rules            → relative symlink to .claude/skills/<name>-rules
+└── .gitignore                            ← needs !.claude/skills/ exception
+```
+
+**Platform coverage** (`.claude/skills/` as source of truth):
+- Claude Code: native
+- VS Code/Copilot: compat scan
+- Windsurf: compat scan
+- Codex: via `.agents/skills/` symlink
+
+**Symlink**: MUST use relative paths in git repos (absolute paths break on clone).
+
+**.gitignore config**:
+```
+.claude/*
+!.claude/skills/
+.agents/*
+!.agents/skills/
+```
+
+**Format**: Same as published rule-skills — MUST/NEVER summary in description, full rules in body. No README or LICENSE needed (not independently published).
+
+**Example**: `maintenance-rules` — repo maintenance constraints (update triggers, verification steps, contribution criteria).
 
 ## Example
 

@@ -55,6 +55,7 @@ Example: `memory-hygiene` skill (full rules in SKILL.md) + `~/.claude/rules/memo
 | Already code-enforced | Neither | Tab limit daemon |
 | Needs cross-platform sharing | Rule-skill | Publish to npm/GitHub |
 | Has capability counterpart | Rule-skill, paired | browser-hygiene + browser-rules |
+| In-repo constraints (maintenance, coding standards) | In-repo rule-skill | maintenance-rules in .claude/skills/ |
 
 ## Cost-Benefit Summary
 
