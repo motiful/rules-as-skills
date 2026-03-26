@@ -1,0 +1,21 @@
+description: >
+  Encode MUST/NEVER constraints as installable, cross-platform skills for AI agents.
+  Three-layer model gives dynamic loading and portability that traditional rule files lack.
+topics:
+  # Tier 1: big traffic (AI/agents domain)
+  - ai
+  - ai-agents
+  - llm
+  - developer-tools
+  # Tier 2: domain-specific
+  - agent-skills
+  - rules-engine
+  - ai-safety
+  - skill-development
+  - constraint-satisfaction
+  # Tier 3: ecosystem / platform
+  - claude-code
+  - cursor
+  - codex
+  - windsurf
+homepage: ""
