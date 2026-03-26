@@ -1,3 +1,8 @@
+---
+name: anatomy
+description: Structural guide for building rule-skills. Covers description format (capability vs constraint vs OpenClaw variant), body structure (immutability marking, domain sections, MUST/NEVER statements), pairing convention (naming patterns, cross-references), enforcement levels, and new rule-skill checklist.
+---
+
 # Rule-Skill Anatomy — Structural Guide
 
 ## Description Format

@@ -1,3 +1,8 @@
+---
+name: decision-tree
+description: Decision framework for choosing between traditional rule files and rule-skills. Covers the primary 4-question decision tree, belt-and-suspenders strategy for critical constraints, when to use neither, and a cost-benefit comparison table.
+---
+
 # Decision Tree — Rules vs Rule-Skills
 
 ## Primary Decision Framework

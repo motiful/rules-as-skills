@@ -4,24 +4,52 @@ description: 'Methodology for encoding hard constraints (Rules) as dynamically-l
 license: MIT
 metadata:
   author: motiful
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Rules as Skills — Constraint Delivery via the Skills Mechanism
 
-## The Problem
+Encode MUST/NEVER constraints as dynamically-loaded skills using the three-layer model: description (always visible), body (on-demand), optional platform rule file (hard fallback).
 
-Skills teach "what you CAN do" (capability). Nothing teaches "what you MUST/NEVER do" (constraint).
+## Execution Procedure
 
-LLMs are goal-seeking — "complete the task" has incentive, "clean up after" doesn't. Without explicit constraint delivery, agents cut corners, skip cleanup, violate boundaries.
+```python
+def create_rule_skill(constraints, domain) -> rule_skill:
+    # STEP 1: Assess — should this be a rule-skill?
+    mechanism = assess(constraints)              # references/decision-tree.md
+    if mechanism == "traditional_rule": return   # short + universal → keep as rule file
+    if mechanism == "code_enforced": return      # already mechanical → neither needed
 
-Traditional rules mechanisms (CC's `~/.claude/rules/`, Codex's `AGENTS.md`, OpenClaw's `AGENTS-RULES.md`) are:
-- **Always-loaded** — every rule consumes context regardless of relevance
-- **Not dynamic** — cannot be triggered conditionally based on task domain
-- **Not portable** — each platform has its own format, no sharing across ecosystems
-- **Not publishable** — cannot be distributed as reusable packages
+    # STEP 2: Name and pair
+    name = f"{domain}-rules"                     # -rules suffix reserved for constraints
+    counterpart = find_capability_skill(domain)  # e.g., browser-hygiene for browser-rules
 
-## The Solution: Three-Layer Model
+    # STEP 3: Write description (Layer 1)
+    description = write_description(constraints) # references/anatomy.md §Description Format
+    assert "MUST" in description or "NEVER" in description
+    assert description.ends_with("MUST read SKILL.md BEFORE [action]")
+    assert len(description) <= 1024
+
+    # STEP 4: Write body (Layer 2)
+    body = write_body(constraints, counterpart)  # references/anatomy.md §Body Structure
+    # Domain sections with MUST/NEVER statements + rationale
+    # "(Immutable)" in title if system-deployed
+    # Counterpart cross-reference in subtitle
+
+    # STEP 5: Deploy platform fallback (Layer 3)
+    if critical(constraints):                    # references/decision-tree.md §When to Use Both
+        deploy_thin_rule(name, description)      # see Platform Adaptation section
+    # Skip ONLY when: not critical (violation won't cause data loss or security breach)
+
+    # STEP 6: Cross-reference
+    if counterpart:
+        add_cross_ref(counterpart, name)         # "Use with <name>-rules"
+        add_cross_ref(name, counterpart)         # "Capability teaching: see <counterpart>"
+
+    return rule_skill
+```
+
+## The Three-Layer Model
 
 ### Layer 1 — Description (always in context)
 
@@ -35,9 +63,9 @@ Full constraint rules with context, examples, violation scenarios. Only loaded w
 
 This is where detailed MUST/NEVER statements live, organized by domain section. The body is the authoritative source; the description is a summary.
 
-### Layer 3 — Platform Rule File (optional hard fallback)
+### Layer 3 — Platform Rule File (hard fallback for critical constraints)
 
-For truly critical constraints that cannot be missed even if the skill isn't triggered. Deploy a thin rule file to the platform's native rule mechanism:
+For constraints where violation causes data loss, security breach, or irreversible damage — deploy a thin rule file to the platform's native rule mechanism:
 
 | Platform | Rule File Location |
 |----------|-------------------|
@@ -47,6 +75,8 @@ For truly critical constraints that cannot be missed even if the skill isn't tri
 | Cursor | `.cursorrules` |
 
 Keep the rule file thin — a pointer to the skill, not a duplicate of its content.
+
+Deploy Layer 3 when: constraint is critical AND must not be missed even if skill isn't triggered. Skip when: constraint is domain-specific and non-critical.
 
 ## Anatomy of a Rule-Skill
 
