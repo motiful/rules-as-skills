@@ -5,6 +5,36 @@ description: Structural guide for building rule-skills. Covers description forma
 
 # Rule-Skill Anatomy — Structural Guide
 
+Structural standards for rule-skill files. Called by parent EP at Step 3 (description) and Step 4 (body).
+
+## Execution Procedure
+
+```python
+def build_rule_skill_structure(constraints, domain, counterpart) -> structured_skill:
+    # Called by SKILL.md Step 3 + Step 4
+
+    # Description
+    description = write_description(constraints, counterpart)  # see Description Format
+    assert "MUST" in description or "NEVER" in description
+    assert description.ends_with("MUST read SKILL.md BEFORE [action]")
+    assert len(description) <= 1024
+
+    # Body
+    body = write_body(constraints, counterpart)                # see Body Structure
+    assert body.has_domain_sections
+    assert all(stmt.has_rationale for stmt in body.must_never_statements)
+
+    # Pairing
+    if counterpart:
+        setup_cross_references(skill, counterpart)             # see Pairing Convention
+
+    # Verification
+    run_checklist(skill)                                       # see Checklist for New Rule-Skills
+    assert all_items_checked
+
+    return structured_skill
+```
+
 ## Description Format
 
 ### Capability Skill Description

@@ -5,6 +5,26 @@ description: Decision framework for choosing between traditional rule files and 
 
 # Decision Tree — Rules vs Rule-Skills
 
+Decision framework for choosing the right constraint delivery mechanism. Called by parent EP at Step 1 and Step 5.
+
+## Execution Procedure
+
+```python
+def assess(constraints) -> "traditional_rule" | "rule_skill" | "rule_skill_plus_fallback" | "neither":
+    # Called by SKILL.md Step 1 + Step 5
+
+    if code_enforced(constraints):                    # see When to Use Neither
+        return "neither"
+
+    result = walk_decision_tree(constraints)           # see Primary Decision Framework
+    # Questions 1-4 in order: universal? → domain-specific? → portable? → paired?
+
+    if result == "rule_skill" and critical(constraints):
+        return "rule_skill_plus_fallback"              # see When to Use Both
+
+    return result
+```
+
 ## Primary Decision Framework
 
 ```
