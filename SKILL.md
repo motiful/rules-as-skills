@@ -112,7 +112,7 @@ Same as CC — skill descriptions in context, body on demand. Deploy to `.cursor
 
 ## Six Patterns from Production
 
-These patterns emerged from 6 rule-skills running in production (OpenClaw/Clawfather project):
+These patterns emerged from 6+ rule-skills running in production across multi-agent orchestration projects:
 
 1. **Pre-Action Reading Requirement** — "MUST read SKILL.md BEFORE..." forces the agent to load full constraints before acting, not after.
 

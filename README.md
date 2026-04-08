@@ -33,10 +33,10 @@ If you manage many rules, your system prompt gets bloated. If you have few, impo
 
 - **Dynamic loading** — constraints load only when the domain is relevant, not on every conversation
 - **Cross-platform portability** — one skill works across Claude Code, Cursor, Codex, OpenClaw, and any Agent Skills platform
-- **Three-layer safety net** — description (always visible) + body (on demand) + optional platform rule file (hard fallback for critical constraints)
+- **Never miss a critical constraint** — three layers of defense ensure constraints are always visible, loaded when relevant, and backed by platform-native fallback
 - **Publishable constraints** — share and install MUST/NEVER rules as packages via `npx skills add`
 - **Capability + constraint pairing** — `browser-hygiene` (teaches) + `browser-rules` (enforces) work as a complete pair
-- **Production-proven patterns** — 6+ rule-skills running in the OpenClaw/Clawfather ecosystem
+- **Production-proven patterns** — 6+ rule-skills running in production across multi-agent orchestration projects
 
 ## Quick Start
 
@@ -53,29 +53,25 @@ git clone https://github.com/motiful/rules-as-skills ~/.skills/rules-as-skills
 ln -sfn ~/.skills/rules-as-skills ~/.claude/skills/rules-as-skills
 ```
 
-### Create your first rule-skill
-
-Tell your agent:
+### Usage
 
 > "Create a rule-skill for database access. Constraints: MUST use parameterized queries, NEVER write raw SQL, MUST close connections in finally blocks."
 
-Your agent will automatically:
-- Apply the three-layer model
-- Use the `-rules` naming convention (`database-rules`)
-- Structure MUST/NEVER statements with rationale
-- Pair it with any existing capability skill
+The agent applies the three-layer model, uses the `-rules` naming convention, structures MUST/NEVER statements with rationale, and pairs with any existing capability skill.
 
-### Publish (optional)
+## When to Use
 
-With [Skill-Forge](https://github.com/motiful/skill-forge) installed:
+| Scenario | Mechanism |
+|----------|-----------|
+| Short, universal constraint (<10 lines) | Traditional rule file |
+| Domain-specific, complex constraints | Rule-skill |
+| Needs cross-platform portability | Rule-skill |
+| Critical + must not be missed | Rule-skill + thin rule file fallback |
+| Already enforced by code | Neither |
 
-> "Forge this rule-skill to GitHub"
+## How It Works
 
-### Auto-discover constraint patterns (optional)
-
-With [Self-Review](https://github.com/motiful/self-review) installed, recurring quality issues are automatically surfaced as rule-skill candidates.
-
-## The Three-Layer Model
+### The Three-Layer Model
 
 ```
 Layer 1 — Description    MUST/NEVER summary (always visible, ~2% context cost)
@@ -94,19 +90,9 @@ Layer 3 — Rule File      Platform-native fallback (for critical constraints)
 
 A capability skill teaches *how*. A rule-skill ensures *correctly*.
 
-## When to Use
+### Proven in Production
 
-| Scenario | Mechanism |
-|----------|-----------|
-| Short, universal constraint (<10 lines) | Traditional rule file |
-| Domain-specific, complex constraints | Rule-skill |
-| Needs cross-platform portability | Rule-skill |
-| Critical + must not be missed | Rule-skill + thin rule file fallback |
-| Already enforced by code | Neither |
-
-## Proven in Production
-
-6+ rule-skills running in the OpenClaw/Clawfather ecosystem. Key patterns that emerged:
+6+ rule-skills running in production across multi-agent orchestration projects. Key patterns that emerged:
 
 1. **Pre-Action Reading** — "MUST read rules BEFORE acting" forces full constraint loading before action
 2. **MUST/NEVER Duality** — every prohibition has a positive counterpart, reducing ambiguity
@@ -129,6 +115,10 @@ A capability skill teaches *how*. A rule-skill ensures *correctly*.
     ├── anatomy.md        — Structural guide for building rule-skills
     └── decision-tree.md  — Decision framework: rules vs rule-skills
 ```
+
+## Contributing
+
+Open an issue or pull request on [GitHub](https://github.com/motiful/rules-as-skills). Bug reports, new production patterns, and platform adaptation improvements are welcome.
 
 ## License
 
