@@ -63,6 +63,26 @@ Full constraint rules with context, examples, violation scenarios. Only loaded w
 
 This is where detailed MUST/NEVER statements live, organized by domain section. The body is the authoritative source; the description is a summary.
 
+### Layer Strength Asymmetry — Why Description Matters Most
+
+The three layers have very different reliability guarantees. Understanding this asymmetry is essential for writing effective rule-skills.
+
+| Layer | Loading | Reliability |
+|-------|---------|-------------|
+| **L1 Description** | Always in system prompt (~2% context) | **Guaranteed** — every request, every turn |
+| **L2 Body** | On-demand via auto-invocation | **Conditional** — only when description matches context and the Skill tool is invoked |
+| **L3 Platform Rule File** | Always, at platform level (~fixed) | **Guaranteed** — but platform-specific |
+
+**Consequence**: L2 is not a continuation of L1 — it is a **demotion** of L1. Any constraint you put in L2 without an L1 anchor will only fire when auto-invocation triggers the skill. If auto-invocation misses (ambiguous context, unrelated task, agent didn't notice), L2 is effectively invisible.
+
+**What this means for rule-skill design**:
+- The *core* of every critical constraint must be stated or strongly hinted in L1 description
+- L2 body is where you put details, rationale, examples — but the L1 description must already signal what the rule is about
+- Writing "Contains rules for X" in description is a **weak signal** — it describes the skill but doesn't create a trigger
+- Writing "MUST read SKILL.md BEFORE [specific action in X]" is a **strong signal** — it names a scenario that auto-invocation can match, and forces body-load before the action
+
+The "MUST read SKILL.md BEFORE [action]" pattern in §Six Patterns (Pattern 1) is not stylistic politeness — it is the auto-invocation trigger mechanism. Without it, Layer 2 is a dead letter.
+
 ### Layer 3 — Platform Rule File (hard fallback for critical constraints)
 
 For constraints where violation causes data loss, security breach, or irreversible damage — deploy a thin rule file to the platform's native rule mechanism:
@@ -114,7 +134,10 @@ Same as CC — skill descriptions in context, body on demand. Deploy to `.cursor
 
 These patterns emerged from 6+ rule-skills running in production across multi-agent orchestration projects:
 
-1. **Pre-Action Reading Requirement** — "MUST read SKILL.md BEFORE..." forces the agent to load full constraints before acting, not after.
+1. **Pre-Action Reading Requirement** — "MUST read SKILL.md BEFORE [action]" serves two purposes simultaneously:
+   - (a) **Auto-invocation trigger**: the action phrase in description is what matches current user context. When the agent sees a related task, description matching triggers the Skill tool to load the body.
+   - (b) **Load-before-act discipline**: forces full constraint body into context *before* the action happens, not after. Without this, an agent may execute first and discover rules second.
+   This is the mechanism that makes Layer 2 (body) reliably loaded. See §Three-Layer Model §Layer Strength Asymmetry.
 
 2. **MUST/NEVER Duality** — Every prohibition has a positive counterpart. "NEVER leave dead tabs" pairs with "MUST clean up tabs after navigation." This reduces ambiguity.
 

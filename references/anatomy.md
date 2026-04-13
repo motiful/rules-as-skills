@@ -58,6 +58,8 @@ Capability teaching: see browser-hygiene.
 MUST read SKILL.md BEFORE any browser operation.
 ```
 
+**Why this format**: The `MUST read SKILL.md BEFORE [action]` phrase is the auto-invocation trigger — it names a specific scenario (browser operation) so agent can match on browser-related tasks, and it enforces body load before any such action. Without this phrase, the body rarely loads. See §Auto-Invocation Trigger Discipline below.
+
 ### OpenClaw Variant
 
 Wrap in `<rules>` XML tags for semantic parsing:
@@ -73,6 +75,36 @@ MUST read SKILL.md BEFORE any browser operation.
 ### Limits
 
 Keep descriptions under 1024 characters (Agent Skills standard limit).
+
+### Auto-Invocation Trigger Discipline
+
+A rule-skill's body is only loaded when the description matches current context. Three levels of trigger strength:
+
+| Level | Description Format | Auto-invocation |
+|-------|-------------------|-----------------|
+| **Weak** | "Contains rules for X" | Rarely matches — describes the skill, not a scenario |
+| **Medium** | "Rules for X. Use with X-capability." | May match X keyword but no action binding |
+| **Strong** | "Rules for X. MUST read SKILL.md BEFORE [specific action in X]." | Matches action scenario + enforces body load |
+
+Only **Strong** guarantees Layer 2 (body) loads when a relevant task appears. Weak and Medium rely on the agent volunteering to read the skill, which does not happen reliably.
+
+**Writing a Strong trigger**:
+1. Name specific actions (edit, modify, add, deploy) — not abstract topics
+2. Bind to file types or tools the agent will interact with ("any React component file", "any SQL migration", "any `scripts/deploy.sh` change")
+3. Use imperative "MUST read SKILL.md BEFORE [action]" — not softeners like "should" or "consider reading"
+4. Keep the scenario narrow enough that it only fires in the intended context (broad scenarios cause auto-invocation to fire constantly, wasting context)
+
+**Example — same rule, three trigger strengths**:
+
+| Strength | Description |
+|----------|-------------|
+| Weak | "Contains rules for React component authoring." |
+| Medium | "React component rules — accessibility, naming, hooks. Use with react-dev." |
+| Strong | "React component rules — a11y, naming, hooks hygiene. MUST read SKILL.md BEFORE editing any `*.tsx` component file or adding new React components." |
+
+Only the Strong version reliably loads when the agent opens a `.tsx` file.
+
+**Implication for multi-rule skills**: A single rule-skill can house multiple related rules in one body, as long as all rules share a common action context that the description can trigger on. If two rules trigger on different contexts (e.g., "editing components" vs "writing migrations"), they belong in **different rule-skills** — one description cannot strongly trigger on both scenarios.
 
 ## Body Structure
 
@@ -125,6 +157,7 @@ Cross-references:
 - [ ] Name ends with `-rules`
 - [ ] Description contains MUST/NEVER summary
 - [ ] Description ends with "MUST read SKILL.md BEFORE [action]"
+- [ ] The "[action]" phrase names a specific scenario (file type, tool, operation) — not an abstract topic
 - [ ] Description under 1024 characters
 - [ ] Body has domain sections with specific MUST/NEVER statements
 - [ ] Each MUST/NEVER statement includes rationale
