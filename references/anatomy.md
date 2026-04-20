@@ -76,6 +76,29 @@ MUST read SKILL.md BEFORE any browser operation.
 
 Keep descriptions under 1024 characters (Agent Skills standard limit).
 
+### Activation Constraints via `paths` Frontmatter
+
+Claude Code skill frontmatter supports an optional `paths` field that accepts glob patterns:
+
+```yaml
+---
+name: react-component-rules
+description: "React component rules — a11y, naming, hooks hygiene. MUST read SKILL.md BEFORE editing any *.tsx component file."
+paths: "**/*.tsx"
+---
+```
+
+**Important — `paths` is an activation _constraint_, not a trigger**: Claude must already decide (via description matching) to use the skill; `paths` then filters out activation in files that don't match the glob. Setting `paths` on a skill does **not** proactively trigger loading when a matching file appears.
+
+**Use `paths` for rule-skills when**:
+- The skill's domain is strongly tied to specific file types or paths (e.g., `*.sql` for migration-rules, `*.tsx` for component-rules)
+- You want to prevent the skill from firing on unrelated files even if description keywords accidentally match
+- Scope is narrower than the trigger phrase can convey
+
+**Do NOT use `paths` to solve weak-trigger problems** — if description is vague, `paths` won't rescue it, because the skill is never selected for activation in the first place. Fix description strength (see §Auto-Invocation Trigger Discipline) first.
+
+**Combining with meta-rule protocol**: meta-rule treatment applies to any `-rules` suffix skill regardless of `paths`. `paths` only scopes where the body loads once the skill is selected — it does not exempt the skill from the MUST-level treatment declared by the meta-rule.
+
 ### Auto-Invocation Trigger Discipline
 
 A rule-skill's body is only loaded when the description matches current context. Three levels of trigger strength:
@@ -148,7 +171,7 @@ Cross-references:
 | Behavioral | Documented MUST/NEVER in body | Social contract | "MUST review before sending" |
 | Tooling | Only correct tool available/documented | Structural | "MUST use tg-send-album.sh" |
 | Automatic | Hard limit enforced by code/daemon | Mechanical | "tab-guard.js MAX_TABS=4" |
-| Constitutional | Immutable file marking + namespace | Systemic | "-rules suffix reserved for system deployer" |
+| Constitutional | Immutable file marking + `-rules` namespace covered by meta-rule protocol | Systemic | Any `*-rules` skill auto-elevated to MUST-level once meta-rule installed |
 
 **Best practice**: Layer enforcement. Behavioral (skill body) catches most violations. Tooling (only exposing the right tool) prevents misuse. Automatic (code enforcement) handles critical limits. Constitutional (immutability marking) prevents self-modification.
 

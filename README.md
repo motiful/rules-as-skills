@@ -53,6 +53,18 @@ git clone https://github.com/motiful/rules-as-skills ~/.skills/rules-as-skills
 ln -sfn ~/.skills/rules-as-skills ~/.claude/skills/rules-as-skills
 ```
 
+### Activate the Protocol
+
+rules-as-skills is a **Protocol Skill** — installing the repo gives you the methodology, but the global hard-constraint protocol is activated by a one-time setup script:
+
+```bash
+./scripts/install-meta-rule.sh install
+```
+
+This detects your installed agents (Claude Code, Codex, and experimentally Cursor / Windsurf / OpenClaw) and injects a meta-rule into each platform's global rule file. From that point on, **any skill whose name ends with `-rules`** is treated as a MUST-level hard constraint — load-before-act, not advisory.
+
+One installation covers every current and future `*-rules` skill. No per-skill deployment. Revoke any time with `./scripts/install-meta-rule.sh uninstall`.
+
 ### Usage
 
 > "Create a rule-skill for database access. Constraints: MUST use parameterized queries, NEVER write raw SQL, MUST close connections in finally blocks."
@@ -63,10 +75,12 @@ The agent applies the three-layer model, uses the `-rules` naming convention, st
 
 | Scenario | Mechanism |
 |----------|-----------|
-| Short, universal constraint (<10 lines) | Traditional rule file |
+| Universal engineering rule (any project) | General spec (README, CONTRIBUTING) |
+| Single-file / single-module scope | 5-10 line comment at top of file |
+| Short, universal runtime constraint (<10 lines) | Traditional rule file |
 | Domain-specific, complex constraints | Rule-skill |
 | Needs cross-platform portability | Rule-skill |
-| Critical + must not be missed | Rule-skill + thin rule file fallback |
+| Critical + must not be missed | Rule-skill (meta-rule protocol covers fallback) |
 | Already enforced by code | Neither |
 
 ## How It Works
@@ -74,14 +88,15 @@ The agent applies the three-layer model, uses the `-rules` naming convention, st
 ### The Three-Layer Model
 
 ```
-Layer 1 — Description    MUST/NEVER summary (always visible, ~2% context cost)
-Layer 2 — Body           Detailed rules (loaded on demand when relevant)
-Layer 3 — Rule File      Platform-native fallback (for critical constraints)
+Layer 1 — Description      MUST/NEVER summary (always visible, ~2% context cost)
+Layer 2 — Body             Detailed rules (loaded on demand when relevant)
+Layer 3 — Meta-Rule        Global protocol: any *-rules skill is hard MUST-level
+                           (one-time install, covers all -rules skills)
 ```
 
 - The agent always sees the constraint **exists** (Layer 1 — cheap)
 - Full rules load only when **relevant** (Layer 2 — efficient)
-- Critical constraints have a **hard fallback** via traditional rules (Layer 3 — safety net)
+- The `-rules` suffix carries **MUST-level authority** globally (Layer 3 — meta-rule protocol, installed once via `scripts/install-meta-rule.sh`, covers every `*-rules` skill on the machine)
 
 ### Passive vs Active Skills
 
@@ -110,10 +125,13 @@ A capability skill teaches *how*. A rule-skill ensures *correctly*.
 ## What's Inside
 
 ```
-├── SKILL.md              — Three-layer methodology + platform adaptation
+├── SKILL.md                         — Three-layer methodology + platform adaptation
+├── scripts/
+│   └── install-meta-rule.sh         — One-time global protocol activator
 └── references/
-    ├── anatomy.md        — Structural guide for building rule-skills
-    └── decision-tree.md  — Decision framework: rules vs rule-skills
+    ├── anatomy.md                   — Structural guide for building rule-skills
+    ├── decision-tree.md             — Decision framework: rules vs rule-skills
+    └── meta-rule-content.md         — Canonical meta-rule text (injection source)
 ```
 
 ## Contributing
