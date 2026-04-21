@@ -20,6 +20,8 @@ def assess(constraints) -> "universal_spec" | "inline_comment" | "traditional_ru
     if scope == "single_file":
         return "inline_comment"                        # → 5-10 line comment at top of file
     # scope == "cross_file_domain_specific" → continue to Step 1
+    # (if in-repo maintenance scope, also consult §In-Repo Maintenance
+    #  Recognition for qualifying signals — does not change return value)
 
     if code_enforced(constraints):                     # see When to Use Neither
         return "neither"
@@ -57,6 +59,16 @@ C. Cross-file / cross-session / domain-specific hard constraint
 **Why Step 0 matters**: Extraction has a cost. A rule-skill adds a file, a dependency link, a maintenance surface, and an installation step. For constraints whose scope never leaves one file, a top-of-file comment is simpler, closer to the code, and harder to miss. For constraints that are universal engineering hygiene, no extraction brings value — they belong in the project's overall spec.
 
 Only constraints whose **locus is genuinely the domain itself** (not a single file, not universal hygiene) earn the rule-skill form.
+
+## In-Repo Maintenance Recognition (Step 0 Sub-case)
+
+When Step 0 classifies a constraint as scope C (cross-file / cross-session / domain-specific) **and** the constraint is scoped to this repo's own maintenance — not a general domain capability — the candidate enters the **in-repo maintenance rule-skill** lane specifically.
+
+See `../SKILL.md` §In-Repo Rule-Skills §Recognition Signals for the full list of positive and negative signals that qualify a candidate for extraction. Do not short-circuit: a repo-specific constraint that fails every positive signal still does not earn the extraction cost.
+
+Skill repos carry an additional hard constraint: platform-specific agent instruction files (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules/`, etc.) MUST NOT be used for the skill repo's own maintenance — see `../SKILL.md` §In-Repo Rule-Skills §Cross-Platform Constraint.
+
+Once qualified, continue through the Primary Decision Framework below to finalize pairing and portability decisions.
 
 ## Primary Decision Framework
 
@@ -114,7 +126,8 @@ Consequences for this decision framework:
 | Already code-enforced | Neither | Tab limit daemon |
 | Needs cross-platform sharing | Rule-skill | Publish to npm/GitHub |
 | Has capability counterpart | Rule-skill, paired | browser-hygiene + browser-rules |
-| In-repo constraints (maintenance, coding standards) | In-repo rule-skill | maintenance-rules in .claude/skills/ |
+| In-repo constraints (maintenance, coding standards) — recognition signals in SKILL.md §In-Repo Rule-Skills | In-repo rule-skill | `maintenance-rules` in `.claude/skills/` |
+| Skill repo's own maintenance (no `CLAUDE.md`/`AGENTS.md` in a skill repo) | In-repo rule-skill — MUST-fix if platform-specific file found | see SKILL.md §Cross-Platform Constraint |
 
 ## Cost-Benefit Summary
 

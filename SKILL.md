@@ -4,7 +4,7 @@ description: 'Rule-skill protocol — hard constraints delivered as dynamically-
 license: MIT
 metadata:
   author: motiful
-  version: "2.0"
+  version: "2.1"
 ---
 
 # Rules as Skills — Constraint Delivery via the Skills Mechanism
@@ -181,6 +181,27 @@ Not all rule-skills are published as standalone repos. Some ship with the projec
 
 **When to use**: Constraints that only apply to THIS repo's context — maintenance procedures, project-specific coding standards, deployment checklists, security rules.
 
+### Recognition Signals — When to Extract an In-Repo Maintenance Rule-Skill
+
+Not every maintenance note belongs in a rule-skill. A candidate earns the extraction cost only when the constraint meets **at least one** of the following positive signals.
+
+**Positive signals**:
+
+1. **Same MUST/NEVER repeats in ≥ 2 places** — the same rule surfaces across README, PR descriptions, issue comments, or inline documentation. Repetition is the tell that the knowledge has no canonical home.
+2. **Repeated cross-session failure** — multiple independent agent sessions make the same mistake. Strongest signal: current channels are not reaching the agent.
+3. **Silent-failure CLI or tooling discipline** — a command reports success but leaves the repo in an invalid state (stale lock entries, orphan symlinks, drifted config), and the existing warning lives in documentation the agent does not autoload.
+4. **Implicit pre/post steps** — "doing X requires first/after doing Y" where Y is only described in prose, not bound to any trigger the agent reliably picks up.
+5. **Release / deploy / publish checklists** — a sequence of pre-action checks currently living as tribal knowledge, oncall handbook entries, or human memory.
+6. **Repo-specific domain constraint** — the constraint depends on this repo's specific files, tools, or schema; it does not generalize to other projects.
+
+**Negative signals** (these belong elsewhere — see `references/decision-tree.md` §Step 0):
+
+- Single-file / single-module scope → top-of-file comment block, not a skill.
+- Universal engineering rule (applies to any project) → general spec (README, CONTRIBUTING), not a skill.
+- Already enforced by code or tooling (pre-commit hook, CI check) → Neither — do not duplicate mechanical enforcement as prose.
+
+A candidate that matches only negative signals is **not** an in-repo rule-skill candidate, regardless of how inconvenient the current scatter feels.
+
 **Directory setup**:
 ```
 project-repo/
@@ -210,6 +231,25 @@ project-repo/
 **Format**: Same as published rule-skills — MUST/NEVER summary in description, full rules in body. No README or LICENSE needed (not independently published).
 
 **Example**: `maintenance-rules` — repo maintenance constraints (update triggers, verification steps, contribution criteria).
+
+### Cross-Platform Constraint — No Platform-Specific Instruction Files in Skill Repos
+
+Skill repos are **cross-platform products** by design. A skill's consumers include Claude Code, Codex, Cursor, Windsurf, OpenClaw, and any future agent platform honoring the Agent Skills spec. Writing maintenance rules into a single platform's instruction file (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules/`, `.github/copilot-instructions.md`, etc.) binds a cross-platform artifact to one platform's runtime and erodes portability.
+
+**Rule**: A skill repo MUST NOT carry platform-specific agent instruction files for its own maintenance. The canonical home for skill-repo maintenance constraints is an **in-repo maintenance rule-skill** (`.claude/skills/<name>-rules/`), which the meta-rule protocol (§Layer 3) elevates to MUST-level uniformly across every platform that honors the `-rules` suffix.
+
+**When this rule fires**: during audit of a **skill repo**, identified by `SKILL.md` at repo root (single-skill) or `skills/<name>/SKILL.md` (collection). Non-skill repos (application codebases, internal tools) keep single-platform instruction files as they are — out of scope for this rule.
+
+**Migration when `CLAUDE.md` (or equivalent) is found in a skill repo**:
+
+| Content type | Destination |
+|--------------|-------------|
+| Repo maintenance constraints (most content) | In-repo maintenance rule-skill (`.claude/skills/<name>-rules/`) |
+| Material explaining the skill's capability, EP, or behavior | `references/<topic>.md` of the skill itself |
+| Cross-skill methodology content | Likely a standalone skill candidate — evaluate separately |
+| Residual notes with no consumer | Delete |
+
+After migration, the platform-specific file is removed from the skill repo. Audit tools (e.g., skill-forge) MUST treat the presence of such a file in a skill repo as **must-fix**.
 
 ## Example
 
