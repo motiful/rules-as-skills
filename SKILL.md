@@ -121,6 +121,23 @@ See `references/decision-tree.md` for the full decision framework.
 
 **Short version**: Use rule-skills when constraints are domain-specific, need cross-platform portability, or have a capability counterpart. Use traditional rules when constraints are universal and short.
 
+### When NOT to Use a Rule-Skill — The Ambient Test
+
+The rule-skill form is for constraints that are **truly ambient**: they must hold no matter which activity is running, and no single capability skill reliably fires to carry them into context. Before extracting a `-rules` skill, apply the boundary test:
+
+> Does this constraint only matter *during* specific activities — and does each of those activities already trigger its own capability skill?
+>
+> - **No** (it must hold regardless of activity, no capability skill reliably loads it) → ambient → rule-skill is right.
+> - **Yes** (it rides along with activities that already have skills) → **not** a standalone rule-skill → make it a shared **reference file that the capability skill loads on demand** at execution time (e.g., in its Execution Procedure: "before committing, apply `references/consistency.md`").
+
+**Why a loaded reference beats a `-rules` skill for activity-bound constraints**:
+
+1. **No size cap.** A rule-skill's only always-resident space is its ≤1024-char L1 description (see §Layer Strength Asymmetry). A growing MUST/NEVER set does not fit there — it overflows the one field that has to carry it.
+2. **No description-shape conflict.** A description's correct shape is *capability + Use-when + keywords* for discovery and routing. MUST/NEVER rule text is a different shape; cramming rules into a description fights what the field is for.
+3. **Enforcement is identical.** A reference loaded into context is obeyed exactly like a skill body — both are just prompt. When the activity already fires a capability skill, that skill loads the reference at the exact moment the constraint applies. Downgrading a would-be rule-skill to a loaded reference **loses nothing in enforcement**, and drops the size cap, the description-shape conflict, and one more always-resident skill.
+
+This is the mirror image of §Layer Strength Asymmetry: rule-skills exist to solve the "no activity reliably loads this" problem. If an activity *does* reliably load it, that problem never arises — prefer the loaded-on-demand reference.
+
 ## Platform Adaptation
 
 Meta-rule injection targets per platform (run `scripts/install-meta-rule.sh`):

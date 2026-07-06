@@ -120,6 +120,7 @@ Consequences for this decision framework:
 |----------|-----------|---------|
 | Universal engineering rule (any project) | General spec (README, CONTRIBUTING) | "commit messages in English" |
 | Single-file / single-module scope | 5-10 line comment at top of file | "this file only callable by X" |
+| Activity-bound — only applies during activities that already fire their own capability skill (fails the ambient test — see SKILL.md §When NOT to Use a Rule-Skill) | Shared reference loaded on demand by the capability skill | "apply `references/consistency.md` before committing" |
 | Short, universal runtime constraint | Traditional rule | "Never commit .env files" |
 | Domain-specific, complex constraint | Rule-skill | browser-rules (10+ MUST/NEVER) |
 | Critical + must not miss | Rule-skill (meta-rule protocol handles fallback) | memory-rules |
